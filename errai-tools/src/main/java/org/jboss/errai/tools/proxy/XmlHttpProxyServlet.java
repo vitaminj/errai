@@ -85,7 +85,7 @@ public class XmlHttpProxyServlet extends HttpServlet {
   private ServletContext ctx;
   private List<Map<String, Object>> services = null;
   private String resourcesDir = "/resources/";
-  private String classpathResourcesDir = "/META-INF/resources/";
+  private String classpathResourcesDir = "/META-INF/resources/xsl/";
   private String headerToken = "jmaki-";
   private String testToken = "xtest-";
 
@@ -106,23 +106,23 @@ public class XmlHttpProxyServlet extends HttpServlet {
     super.init(config);
     ctx = config.getServletContext();
     // set the response content type
-    if (ctx.getInitParameter("responseContentType") != null) {
-      defaultContentType = ctx.getInitParameter("responseContentType");
+    if (config.getInitParameter("responseContentType") != null) {
+      defaultContentType = config.getInitParameter("responseContentType");
     }
     // allow for resources dir over-ride at the xhp level otherwise allow
     // for the jmaki level resources
-    if (ctx.getInitParameter("jmaki-xhp-resources") != null) {
-      resourcesDir = ctx.getInitParameter("jmaki-xhp-resources");
+    if (config.getInitParameter("jmaki-xhp-resources") != null) {
+      resourcesDir = config.getInitParameter("jmaki-xhp-resources");
     }
-    else if (ctx.getInitParameter("jmaki-resources") != null) {
-      resourcesDir = ctx.getInitParameter("jmaki-resources");
+    else if (config.getInitParameter("jmaki-resources") != null) {
+      resourcesDir = config.getInitParameter("jmaki-resources");
     }
     // allow for resources dir over-ride
-    if (ctx.getInitParameter("jmaki-classpath-resources") != null) {
-      classpathResourcesDir = ctx.getInitParameter("jmaki-classpath-resources");
+    if (config.getInitParameter("jmaki-classpath-resources") != null) {
+      classpathResourcesDir = config.getInitParameter("jmaki-classpath-resources");
     }
-    String requireSessionString = ctx.getInitParameter("requireSession");
-    if (requireSessionString == null) requireSessionString = ctx.getInitParameter("jmaki-requireSession");
+    String requireSessionString = config.getInitParameter("requireSession");
+    if (requireSessionString == null) requireSessionString = config.getInitParameter("jmaki-requireSession");
     if (requireSessionString != null) {
       if ("false".equals(requireSessionString)) {
         requireSession = false;
@@ -133,8 +133,8 @@ public class XmlHttpProxyServlet extends HttpServlet {
         getLogger().severe("XmlHttpProxyServlet: intialization. Session requirement enabled.");
       }
     }
-    String xdomainString = ctx.getInitParameter("allowXDomain");
-    if (xdomainString == null) xdomainString = ctx.getInitParameter("jmaki-allowXDomain");
+    String xdomainString = config.getInitParameter("allowXDomain");
+    if (xdomainString == null) xdomainString = config.getInitParameter("jmaki-allowXDomain");
     if (xdomainString != null) {
       if ("true".equals(xdomainString)) {
         allowXDomain = true;
@@ -145,7 +145,7 @@ public class XmlHttpProxyServlet extends HttpServlet {
         getLogger().severe("XmlHttpProxyServlet: intialization. xDomain access is disabled.");
       }
     }
-    String createSessionString = ctx.getInitParameter("jmaki-createSession");
+    String createSessionString = config.getInitParameter("jmaki-createSession");
     if (createSessionString != null) {
       if ("true".equals(createSessionString)) {
         createSession = true;
@@ -157,8 +157,8 @@ public class XmlHttpProxyServlet extends HttpServlet {
       }
     }
     // if there is a proxyHost and proxyPort specified create an HttpClient with the proxy
-    String proxyHost = ctx.getInitParameter("proxyHost");
-    String proxyPortString = ctx.getInitParameter("proxyPort");
+    String proxyHost = config.getInitParameter("proxyHost");
+    String proxyPortString = config.getInitParameter("proxyPort");
     if (proxyHost != null && proxyPortString != null) {
       int proxyPort = 8080;
       try {
@@ -358,7 +358,7 @@ public class XmlHttpProxyServlet extends HttpServlet {
             }
 
             urlString = serviceURL + apikey;
-            if (urlParams != null) urlString += "&" + urlParams;
+            if (urlParams != null) urlString += ("".equals(apikey) ? "" : "&") + urlParams;
           }
 
           if (passthrough) {
@@ -432,7 +432,7 @@ public class XmlHttpProxyServlet extends HttpServlet {
         xslURL = ctx.getResource(resourcesDir + "xsl/" + xslURLString);
         // if not in the web root check the classpath
         if (xslURL == null) {
-          xslURL = XmlHttpProxyServlet.class.getResource(classpathResourcesDir + "xsl/" + xslURLString);
+          xslURL = XmlHttpProxyServlet.class.getResource(classpathResourcesDir + xslURLString);
         }
         if (xslURL != null) {
           xslInputStream = xslURL.openStream();

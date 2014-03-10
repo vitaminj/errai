@@ -44,7 +44,7 @@ public class ProxyConfig {
   }
 
   public static ProxyConfig parse(String json) {
-    ProxyConfig config = new ProxyConfig((Map<String, Object>) JSONDecoder.decode(json));
+    ProxyConfig config = new ProxyConfig((Map<String, Object>) JSONDecoder.decode(json).getRawValue());
     return config;
   }
 
